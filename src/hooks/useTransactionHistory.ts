@@ -22,61 +22,59 @@ export interface TransactionRecord {
 const LOCAL_STORAGE_KEY = "basedex_recent_txs";
 
 export function useTransactionHistory() {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, isConnected } = useAccount();
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
-  const [filterMode, setFilterMode] = useState<"my" | "all">("my");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const getCachedTxs = useCallback((): TransactionRecord[] => {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined" || !userAddress) return [];
     try {
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const all: TransactionRecord[] = raw ? JSON.parse(raw) : [];
+      return all.filter((item) => item.userAddress?.toLowerCase() === userAddress.toLowerCase());
     } catch {
       return [];
     }
-  }, []);
+  }, [userAddress]);
 
   const saveCachedTx = useCallback((tx: TransactionRecord) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !userAddress) return;
     try {
-      const existing = getCachedTxs();
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const existing: TransactionRecord[] = raw ? JSON.parse(raw) : [];
       const updated = [tx, ...existing.filter((item) => item.txHash !== tx.txHash)].slice(0, 30);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
     } catch (err) {
       console.warn("Failed to cache tx", err);
     }
-  }, [getCachedTxs]);
+  }, [userAddress]);
 
   const fetchTransactions = useCallback(async () => {
+    if (!isConnected || !userAddress) {
+      setTransactions([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
-      const queryAddress = filterMode === "my" && userAddress ? userAddress : "all";
-      const res = await fetch(`/api/transactions?address=${encodeURIComponent(queryAddress)}`);
+      const res = await fetch(`/api/transactions?address=${encodeURIComponent(userAddress.toLowerCase())}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.transactions)) {
         const cached = getCachedTxs();
         const combined = [...cached, ...data.transactions];
         const uniqueMap = new Map<string, TransactionRecord>();
         for (const item of combined) {
-          if (!uniqueMap.has(item.txHash)) {
+          if (item.userAddress?.toLowerCase() === userAddress.toLowerCase() && !uniqueMap.has(item.txHash)) {
             uniqueMap.set(item.txHash, item);
           }
         }
         const sorted = Array.from(uniqueMap.values()).sort(
           (a, b) => Number(b.timestamp) - Number(a.timestamp)
         );
-
-        if (filterMode === "my" && userAddress) {
-          const myFiltered = sorted.filter(
-            (tx) => tx.userAddress.toLowerCase() === userAddress.toLowerCase()
-          );
-          setTransactions(myFiltered);
-        } else {
-          setTransactions(sorted);
-        }
+        setTransactions(sorted);
       }
     } catch (err: any) {
       console.error("fetchTransactions error", err);
@@ -85,7 +83,7 @@ export function useTransactionHistory() {
     } finally {
       setIsLoading(false);
     }
-  }, [filterMode, userAddress, getCachedTxs]);
+  }, [isConnected, userAddress, getCachedTxs]);
 
   useEffect(() => {
     fetchTransactions();
@@ -112,8 +110,6 @@ export function useTransactionHistory() {
     transactions,
     isLoading,
     error,
-    filterMode,
-    setFilterMode,
     refetch: fetchTransactions,
     recordTransaction,
   };

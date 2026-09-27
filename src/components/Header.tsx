@@ -34,21 +34,21 @@ export function Header() {
             </span>
           </div>
 
-          <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
             <button
               onClick={() => {
                 triggerFeedback();
                 toggleView();
               }}
-              className={`p-1 rounded-xl transition-all duration-200 active:scale-95 shrink-0 flex items-center justify-center bg-transparent ${
+              className={`w-8 h-8 rounded-lg transition-all duration-150 active:scale-95 shrink-0 flex items-center justify-center bg-transparent ${
                 view === "history"
-                  ? "border border-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.2)]"
-                  : "border border-transparent hover:border-hairline/60"
+                  ? "border border-[#0052FF] shadow-[0_0_8px_rgba(0,82,255,0.25)] text-[#0052FF]"
+                  : "border border-transparent hover:border-hairline/60 text-ink-muted hover:text-ink"
               }`}
               title={view === "history" ? "Switch to Swap" : "Transaction History"}
               aria-label="Transaction History"
             >
-              <ArchiveIcon size={36} />
+              <ArchiveIcon size={20} />
             </button>
 
             <button
@@ -56,14 +56,14 @@ export function Header() {
                 triggerFeedback();
                 toggleTheme();
               }}
-              className="p-1.5 sm:p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center bg-transparent border border-transparent hover:border-hairline/60"
+              className="w-8 h-8 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center bg-transparent border border-transparent hover:border-hairline/60"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
-                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-terminal-yellow" />
+                <Sun className="w-4 h-4 text-terminal-yellow" />
               ) : (
-                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-ink" />
+                <Moon className="w-4 h-4 text-ink" />
               )}
             </button>
 

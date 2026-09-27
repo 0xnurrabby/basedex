@@ -21,13 +21,20 @@ function getAudio(): HTMLAudioElement | null {
   return audio;
 }
 
-export function triggerFeedback() {
+export function triggerFeedback(duration = 38) {
   if (typeof window === "undefined") return;
 
-  if ("vibrate" in navigator) {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
     try {
-      navigator.vibrate(12);
-    } catch {}
+      const vibrated = navigator.vibrate([duration]);
+      if (!vibrated) {
+        navigator.vibrate(duration);
+      }
+    } catch {
+      try {
+        navigator.vibrate(duration);
+      } catch {}
+    }
   }
 
   try {

@@ -10,7 +10,7 @@ interface ArchiveIconProps {
 }
 
 export function ArchiveIcon({
-  size = 36,
+  size = 20,
   className = "",
   trigger = "loop",
 }: ArchiveIconProps) {

@@ -5,30 +5,23 @@ export async function GET(request: NextRequest) {
   try {
     await initDb();
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get("address");
+    const address = searchParams.get("address")?.trim();
     const limit = Math.min(Number(searchParams.get("limit")) || 50, 100);
 
-    let result;
-    if (address && address !== "all") {
-      result = await turso.execute({
-        sql: `
-          SELECT * FROM transactions 
-          WHERE LOWER(user_address) = LOWER(?) 
-          ORDER BY timestamp DESC 
-          LIMIT ?
-        `,
-        args: [address, limit],
-      });
-    } else {
-      result = await turso.execute({
-        sql: `
-          SELECT * FROM transactions 
-          ORDER BY timestamp DESC 
-          LIMIT ?
-        `,
-        args: [limit],
-      });
+    // If no address is provided or invalid, return empty array. Never leak other users' transactions.
+    if (!address || address === "all" || !address.startsWith("0x")) {
+      return NextResponse.json({ success: true, transactions: [] });
     }
+
+    const result = await turso.execute({
+      sql: `
+        SELECT * FROM transactions 
+        WHERE LOWER(user_address) = LOWER(?) 
+        ORDER BY timestamp DESC 
+        LIMIT ?
+      `,
+      args: [address, limit],
+    });
 
     const transactions = result.rows.map((row) => ({
       id: row.id,
