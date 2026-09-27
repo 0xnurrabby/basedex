@@ -44,11 +44,22 @@ export function SwapCard() {
   const [tokenOut, setTokenOut] = useState<Token>(DEFAULT_TOKENS[2]);
 
   const [amountIn, setAmountIn] = useState<string>("");
+  const [inputMode, setInputMode] = useState<"token" | "usd">("token");
   const [slippage, setSlippage] = useState<number>(0.5);
   const [modalTarget, setModalTarget] = useState<"in" | "out" | null>(null);
 
   const priceIn = getPrice(tokenIn.isNative ? "0x0000000000000000000000000000000000000000" : tokenIn.address);
   const priceOut = getPrice(tokenOut.isNative ? "0x0000000000000000000000000000000000000000" : tokenOut.address);
+
+  const effectiveTokenAmount = React.useMemo(() => {
+    if (!amountIn || Number(amountIn) <= 0) return "";
+    if (inputMode === "token") return amountIn;
+    if (priceIn > 0) {
+      const rawVal = parseFloat(amountIn) / priceIn;
+      return rawVal.toFixed(Math.min(tokenIn.decimals, 8));
+    }
+    return "";
+  }, [amountIn, inputMode, priceIn, tokenIn.decimals]);
 
   const { data: ethBalance, refetch: refetchEth } = useBalance({
     address: userAddress,
@@ -98,7 +109,7 @@ export function SwapCard() {
   const { quote, isLoading: isQuoteLoading, error: quoteError } = useAerodromeQuote(
     tokenIn,
     tokenOut,
-    amountIn,
+    effectiveTokenAmount,
     slippage
   );
 
@@ -109,7 +120,7 @@ export function SwapCard() {
     resetApprovalState,
     approveTxHash,
     error: approveError,
-  } = useTokenApproval(tokenIn, amountIn);
+  } = useTokenApproval(tokenIn, effectiveTokenAmount);
 
   const {
     executeSwap,
@@ -128,20 +139,42 @@ export function SwapCard() {
     }
   }, [isSwapSuccess]);
 
+  const toggleInputMode = () => {
+    if (inputMode === "token") {
+      if (amountIn && Number(amountIn) > 0 && priceIn > 0) {
+        setAmountIn((parseFloat(amountIn) * priceIn).toFixed(2));
+      }
+      setInputMode("usd");
+    } else {
+      if (amountIn && Number(amountIn) > 0 && priceIn > 0) {
+        setAmountIn((parseFloat(amountIn) / priceIn).toFixed(Math.min(tokenIn.decimals, 8)));
+      }
+      setInputMode("token");
+    }
+    resetSwap();
+  };
+
   const handleMax = () => {
     if (!balanceIn || Number(balanceIn) <= 0) return;
+    let maxToken = balanceIn;
     if (tokenIn.isNative) {
       const num = parseFloat(balanceIn);
       if (num <= 0.0001) {
-        const maxVal = num * 0.9;
-        setAmountIn(maxVal > 0 ? maxVal.toFixed(8) : "0");
+        maxToken = (num * 0.9).toFixed(8);
       } else {
-        const maxVal = Math.max(0, num - 0.00005);
-        setAmountIn(maxVal.toFixed(6));
+        maxToken = Math.max(0, num - 0.00005).toFixed(6);
       }
-    } else {
-      setAmountIn(balanceIn);
     }
+    if (inputMode === "token") {
+      setAmountIn(maxToken);
+    } else {
+      if (priceIn > 0) {
+        setAmountIn((parseFloat(maxToken) * priceIn).toFixed(2));
+      } else {
+        setAmountIn(maxToken);
+      }
+    }
+    resetSwap();
   };
 
   const handleSwitchTokens = () => {
@@ -154,8 +187,8 @@ export function SwapCard() {
 
   const hasInsufficientBalance =
     Boolean(userAddress) &&
-    Boolean(amountIn) &&
-    Number(amountIn) > Number(balanceIn);
+    Boolean(effectiveTokenAmount) &&
+    Number(effectiveTokenAmount) > Number(balanceIn);
 
   let actionLabel = "Swap";
   let isActionDisabled = false;
@@ -207,8 +240,8 @@ export function SwapCard() {
       await approve();
       return;
     }
-    if (quote) {
-      await executeSwap(tokenIn, tokenOut, amountIn, quote);
+    if (quote && effectiveTokenAmount) {
+      await executeSwap(tokenIn, tokenOut, effectiveTokenAmount, quote);
     }
   };
 
@@ -263,22 +296,44 @@ export function SwapCard() {
 
           <div className="flex items-center justify-between space-x-3">
             <div className="w-full">
-              <input
-                type="number"
-                inputMode="decimal"
-                placeholder="0.0"
-                value={amountIn}
-                onChange={(e) => {
-                  setAmountIn(e.target.value);
-                  resetSwap();
-                }}
-                className="w-full bg-transparent text-2xl font-mono text-ink placeholder:text-ink-faint focus:outline-none"
-              />
-              {amountIn && Number(amountIn) > 0 && priceIn > 0 && (
-                <div className="text-[11px] font-mono text-ink-muted mt-0.5">
-                  ≈ {formatUsdValue(parseFloat(amountIn), priceIn)}
-                </div>
-              )}
+              <div className="flex items-center">
+                {inputMode === "usd" && (
+                  <span className="text-2xl font-mono text-ink-muted select-none mr-1">
+                    $
+                  </span>
+                )}
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder={inputMode === "usd" ? "0.00" : "0.0"}
+                  value={amountIn}
+                  onChange={(e) => {
+                    setAmountIn(e.target.value);
+                    resetSwap();
+                  }}
+                  className="w-full bg-transparent text-2xl font-mono text-ink placeholder:text-ink-faint focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={toggleInputMode}
+                className="inline-flex items-center gap-1.5 mt-1 px-1.5 py-0.5 rounded text-[11px] font-mono text-ink-muted hover:text-ink hover:bg-surface-card transition cursor-pointer select-none"
+                title="Toggle between USD and token amount"
+              >
+                <ArrowUpDown className="w-3 h-3 text-ink-muted" />
+                <span>
+                  {inputMode === "token"
+                    ? amountIn && Number(amountIn) > 0 && priceIn > 0
+                      ? formatUsdValue(parseFloat(amountIn), priceIn)
+                      : "$0.00"
+                    : amountIn && Number(amountIn) > 0 && priceIn > 0
+                    ? `${(parseFloat(amountIn) / priceIn).toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                      })} ${tokenIn.symbol}`
+                    : `0 ${tokenIn.symbol}`}
+                </span>
+              </button>
             </div>
 
             <button

@@ -1,10 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { parseUnits, formatUnits, type Address, zeroAddress } from "viem";
+import { parseUnits, formatUnits, type Address, createPublicClient, http, fallback } from "viem";
+import { base } from "viem/chains";
 import { usePublicClient } from "wagmi";
-import { AERODROME_ROUTER_ABI, AERODROME_FACTORY_ABI } from "../constants/abis";
-import { AERODROME_ROUTER, AERODROME_FACTORY, WETH_BASE } from "../constants/contracts";
+import { AERODROME_ROUTER_ABI } from "../constants/abis";
+import {
+  AERODROME_ROUTER,
+  AERODROME_FACTORY,
+  WETH_BASE,
+  USDC_BASE,
+  BASE_CHAIN_ID,
+  BASE_RPC_URLS,
+} from "../constants/contracts";
 import type { Token } from "../constants/tokens";
 
 export interface AerodromeRoute {
@@ -27,19 +35,100 @@ export interface QuoteResult {
   routePath: string[];
 }
 
+const fallbackBaseClient = createPublicClient({
+  chain: base,
+  transport: fallback(
+    BASE_RPC_URLS.map((url) => http(url)),
+    { rank: false }
+  ),
+});
+
+function buildCandidateRoutes(
+  tokenIn: Token,
+  tokenOut: Token,
+  addrIn: Address,
+  addrOut: Address
+): { routes: AerodromeRoute[]; path: string[] }[] {
+  const candidates: { routes: AerodromeRoute[]; path: string[] }[] = [];
+
+  candidates.push({
+    routes: [{ from: addrIn, to: addrOut, stable: false, factory: AERODROME_FACTORY }],
+    path: [tokenIn.symbol, tokenOut.symbol],
+  });
+  candidates.push({
+    routes: [{ from: addrIn, to: addrOut, stable: true, factory: AERODROME_FACTORY }],
+    path: [tokenIn.symbol, tokenOut.symbol],
+  });
+
+  const isWethIn = addrIn.toLowerCase() === WETH_BASE.toLowerCase();
+  const isWethOut = addrOut.toLowerCase() === WETH_BASE.toLowerCase();
+  if (!isWethIn && !isWethOut) {
+    for (const s1 of [false, true]) {
+      for (const s2 of [false, true]) {
+        candidates.push({
+          routes: [
+            { from: addrIn, to: WETH_BASE, stable: s1, factory: AERODROME_FACTORY },
+            { from: WETH_BASE, to: addrOut, stable: s2, factory: AERODROME_FACTORY },
+          ],
+          path: [tokenIn.symbol, "WETH", tokenOut.symbol],
+        });
+      }
+    }
+  }
+
+  const isUsdcIn = addrIn.toLowerCase() === USDC_BASE.toLowerCase();
+  const isUsdcOut = addrOut.toLowerCase() === USDC_BASE.toLowerCase();
+  if (!isUsdcIn && !isUsdcOut) {
+    for (const s1 of [false, true]) {
+      for (const s2 of [false, true]) {
+        candidates.push({
+          routes: [
+            { from: addrIn, to: USDC_BASE, stable: s1, factory: AERODROME_FACTORY },
+            { from: USDC_BASE, to: addrOut, stable: s2, factory: AERODROME_FACTORY },
+          ],
+          path: [tokenIn.symbol, "USDC", tokenOut.symbol],
+        });
+      }
+    }
+  }
+
+  if (!isWethIn && !isWethOut && !isUsdcIn && !isUsdcOut) {
+    candidates.push({
+      routes: [
+        { from: addrIn, to: USDC_BASE, stable: false, factory: AERODROME_FACTORY },
+        { from: USDC_BASE, to: WETH_BASE, stable: false, factory: AERODROME_FACTORY },
+        { from: WETH_BASE, to: addrOut, stable: false, factory: AERODROME_FACTORY },
+      ],
+      path: [tokenIn.symbol, "USDC", "WETH", tokenOut.symbol],
+    });
+    candidates.push({
+      routes: [
+        { from: addrIn, to: WETH_BASE, stable: false, factory: AERODROME_FACTORY },
+        { from: WETH_BASE, to: USDC_BASE, stable: false, factory: AERODROME_FACTORY },
+        { from: USDC_BASE, to: addrOut, stable: false, factory: AERODROME_FACTORY },
+      ],
+      path: [tokenIn.symbol, "WETH", "USDC", tokenOut.symbol],
+    });
+  }
+
+  return candidates;
+}
+
 export function useAerodromeQuote(
   tokenIn: Token | null,
   tokenOut: Token | null,
   amountIn: string,
   slippagePercent: number
 ) {
-  const publicClient = usePublicClient();
+  const wagmiClient = usePublicClient({ chainId: BASE_CHAIN_ID });
+  const client = wagmiClient || fallbackBaseClient;
+
   const [quote, setQuote] = useState<QuoteResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!tokenIn || !tokenOut || !amountIn || Number(amountIn) <= 0 || !publicClient) {
+    if (!tokenIn || !tokenOut || !amountIn || Number(amountIn) <= 0) {
       setQuote(null);
       setError(null);
       setIsLoading(false);
@@ -92,108 +181,49 @@ export function useAerodromeQuote(
     let cancelled = false;
 
     async function fetchQuote() {
-      if (!publicClient) return;
       setIsLoading(true);
       setError(null);
 
       try {
         const parsedAmountIn = parseUnits(amountIn, tokenIn!.decimals);
-        const candidateRoutes: { routes: AerodromeRoute[]; path: string[] }[] = [];
+        const candidates = buildCandidateRoutes(tokenIn!, tokenOut!, addrIn, addrOut);
 
-        candidateRoutes.push({
-          routes: [
-            {
-              from: addrIn,
-              to: addrOut,
-              stable: false,
-              factory: AERODROME_FACTORY,
-            },
-          ],
-          path: [tokenIn!.symbol, tokenOut!.symbol],
-        });
-
-        candidateRoutes.push({
-          routes: [
-            {
-              from: addrIn,
-              to: addrOut,
-              stable: true,
-              factory: AERODROME_FACTORY,
-            },
-          ],
-          path: [tokenIn!.symbol, tokenOut!.symbol],
-        });
-
-        if (
-          addrIn.toLowerCase() !== WETH_BASE.toLowerCase() &&
-          addrOut.toLowerCase() !== WETH_BASE.toLowerCase()
-        ) {
-          candidateRoutes.push({
-            routes: [
-              {
-                from: addrIn,
-                to: WETH_BASE,
-                stable: false,
-                factory: AERODROME_FACTORY,
-              },
-              {
-                from: WETH_BASE,
-                to: addrOut,
-                stable: false,
-                factory: AERODROME_FACTORY,
-              },
-            ],
-            path: [tokenIn!.symbol, "WETH", tokenOut!.symbol],
-          });
-        }
-
-        let bestAmountOut = 0n;
-        let bestRoute: AerodromeRoute[] = [];
-        let bestPath: string[] = [];
-
-        for (const candidate of candidateRoutes) {
-          try {
-            if (candidate.routes.length === 1) {
-              const r = candidate.routes[0];
-              const pool = (await publicClient.readContract({
-                address: AERODROME_FACTORY,
-                abi: AERODROME_FACTORY_ABI,
-                functionName: "getPool",
-                args: [r.from, r.to, r.stable],
-              })) as Address;
-              if (!pool || pool === zeroAddress) continue;
-            }
-
-            const amounts = (await publicClient.readContract({
+        const results = await Promise.allSettled(
+          candidates.map((c) =>
+            client.readContract({
               address: AERODROME_ROUTER,
               abi: AERODROME_ROUTER_ABI,
               functionName: "getAmountsOut",
-              args: [parsedAmountIn, candidate.routes],
-            })) as bigint[];
-
-            if (amounts && amounts.length > 0) {
-              const outAmount = amounts[amounts.length - 1];
-              if (outAmount > bestAmountOut) {
-                bestAmountOut = outAmount;
-                bestRoute = candidate.routes;
-                bestPath = candidate.path;
-              }
-            }
-          } catch {
-            continue;
-          }
-        }
+              args: [parsedAmountIn, c.routes],
+            })
+          )
+        );
 
         if (cancelled) return;
 
-        if (bestAmountOut === 0n) {
+        let bestAmountOut = 0n;
+        let bestCandidate: { routes: AerodromeRoute[]; path: string[] } | null = null;
+
+        results.forEach((res, i) => {
+          if (res.status === "fulfilled" && res.value && res.value.length > 0) {
+            const outAmount = res.value[res.value.length - 1];
+            if (outAmount > bestAmountOut) {
+              bestAmountOut = outAmount;
+              bestCandidate = candidates[i];
+            }
+          }
+        });
+
+        if (bestAmountOut === 0n || !bestCandidate) {
           setQuote(null);
           setError("No liquidity pool found on Aerodrome for this pair");
           return;
         }
 
         const formattedOut = formatUnits(bestAmountOut, tokenOut!.decimals);
-        const slippageBps = BigInt(Math.max(1, Math.min(5000, Math.floor(slippagePercent * 100))));
+        const slippageBps = BigInt(
+          Math.max(1, Math.min(5000, Math.floor(slippagePercent * 100)))
+        );
         const amountOutMin = (bestAmountOut * (10000n - slippageBps)) / 10000n;
         const amountOutMinFormatted = formatUnits(amountOutMin, tokenOut!.decimals);
 
@@ -206,12 +236,12 @@ export function useAerodromeQuote(
           amountOutRaw: bestAmountOut,
           amountOutMin,
           amountOutMinFormatted,
-          routes: bestRoute,
+          routes: (bestCandidate as { routes: AerodromeRoute[]; path: string[] }).routes,
           executionPrice: price,
           isWrapOrUnwrap: false,
           isWrap: false,
           isUnwrap: false,
-          routePath: bestPath,
+          routePath: (bestCandidate as { routes: AerodromeRoute[]; path: string[] }).path,
         });
         setError(null);
       } catch (err: unknown) {
@@ -235,7 +265,7 @@ export function useAerodromeQuote(
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [tokenIn, tokenOut, amountIn, slippagePercent, publicClient]);
+  }, [tokenIn, tokenOut, amountIn, slippagePercent, client]);
 
   return { quote, isLoading, error };
 }

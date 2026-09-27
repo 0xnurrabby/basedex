@@ -11,3 +11,12 @@ export const BASE_BUILDER_CODE = "bc_q5s8mbyr";
 
 export const BASESCAN_URL = "https://basescan.org";
 export const BASE_RPC_URL = "https://mainnet.base.org";
+export const USDC_BASE: Address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
+export const BASE_RPC_URLS = [
+  "https://base-rpc.publicnode.com",
+  "https://base.llamarpc.com",
+  "https://1rpc.io/base",
+  "https://mainnet.base.org",
+] as const;
+

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { isAddress, type Address, zeroAddress } from "viem";
+import { isAddress, type Address, zeroAddress, createPublicClient, http, fallback } from "viem";
+import { base } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { ERC20_ABI, AERODROME_FACTORY_ABI } from "../constants/abis";
-import { AERODROME_FACTORY, WETH_BASE } from "../constants/contracts";
+import { AERODROME_FACTORY, WETH_BASE, BASE_CHAIN_ID, BASE_RPC_URLS, USDC_BASE } from "../constants/contracts";
 import type { Token } from "../constants/tokens";
-
-const USDC_BASE: Address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 export interface PoolStatusInfo {
   hasPool: boolean;
@@ -16,8 +15,17 @@ export interface PoolStatusInfo {
   isStable?: boolean;
 }
 
+const fallbackBaseClient = createPublicClient({
+  chain: base,
+  transport: fallback(
+    BASE_RPC_URLS.map((url) => http(url)),
+    { rank: false }
+  ),
+});
+
 export function useCustomToken(inputAddress: string) {
-  const publicClient = usePublicClient();
+  const wagmiClient = usePublicClient({ chainId: BASE_CHAIN_ID });
+  const publicClient = wagmiClient || fallbackBaseClient;
   const [token, setToken] = useState<Token | null>(null);
   const [poolStatus, setPoolStatus] = useState<PoolStatusInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
