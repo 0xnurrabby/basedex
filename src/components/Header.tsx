@@ -5,8 +5,10 @@ import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { BASE_CHAIN_ID, BASESCAN_URL } from "../constants/contracts";
 import { Wallet, ChevronDown, LogOut, ExternalLink, Terminal, Sun, Moon } from "lucide-react";
 import { useTheme } from "../providers/ThemeProvider";
+import { useView } from "../providers/ViewProvider";
 import { WalletModal } from "./WalletModal";
 import { Logo } from "./Logo";
+import { ArchiveIcon } from "./ArchiveIcon";
 
 export function Header() {
   const { address, isConnected, chain } = useAccount();
@@ -14,6 +16,7 @@ export function Header() {
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { theme, toggleTheme } = useTheme();
+  const { view, toggleView } = useView();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 
@@ -30,7 +33,20 @@ export function Header() {
             </span>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
+            <button
+              onClick={toggleView}
+              className={`p-1.5 sm:p-2 rounded-full transition active:scale-95 shrink-0 flex items-center justify-center ${
+                view === "history"
+                  ? "bg-surface-elevated text-ink ring-1 ring-hairline"
+                  : "text-ink-muted hover:text-ink hover:bg-surface-soft/60"
+              }`}
+              title={view === "history" ? "Switch to Swap" : "Transaction History"}
+              aria-label="Transaction History"
+            >
+              <ArchiveIcon size={20} />
+            </button>
+
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center"

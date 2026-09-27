@@ -26,6 +26,7 @@ import { useAerodromeQuote } from "../hooks/useAerodromeQuote";
 import { useTokenApproval } from "../hooks/useTokenApproval";
 import { useSwapExecution } from "../hooks/useSwapExecution";
 import { useTokenPrices } from "../hooks/useTokenPrices";
+import { useTransactionHistory } from "../hooks/useTransactionHistory";
 import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { TokenSelectModal } from "./TokenSelectModal";
 import { SlippageSettings } from "./SlippageSettings";
@@ -36,6 +37,7 @@ export function SwapCard() {
   const { address: userAddress, isConnected, chain } = useAccount();
   const { switchChain, switchChainAsync, isPending: isSwitchingChain } = useSwitchChain();
   const { connectors, connect } = useConnect();
+  const { recordTransaction } = useTransactionHistory();
 
   const isWrongNetwork = isConnected && chain?.id !== BASE_CHAIN_ID;
 
@@ -274,7 +276,22 @@ export function SwapCard() {
       return;
     }
     if (quote && effectiveTokenAmount) {
-      await executeSwap(tokenIn, tokenOut, effectiveTokenAmount, quote);
+      const hash = await executeSwap(tokenIn, tokenOut, effectiveTokenAmount, quote);
+      if (hash && userAddress) {
+        recordTransaction({
+          txHash: hash,
+          userAddress,
+          tokenInSymbol: tokenIn.symbol,
+          tokenInAddress: tokenIn.address,
+          tokenInAmount: effectiveTokenAmount,
+          tokenInUsd: priceIn > 0 ? parseFloat(effectiveTokenAmount) * priceIn : 0,
+          tokenOutSymbol: tokenOut.symbol,
+          tokenOutAddress: tokenOut.address,
+          tokenOutAmount: quote.amountOut,
+          tokenOutUsd: priceOut > 0 ? parseFloat(quote.amountOut) * priceOut : 0,
+          timestamp: Date.now(),
+        });
+      }
     }
   };
 

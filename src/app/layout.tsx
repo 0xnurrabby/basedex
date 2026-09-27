@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Web3Provider } from "../providers/Web3Provider";
 import { ThemeProvider } from "../providers/ThemeProvider";
+import { ViewProvider } from "../providers/ViewProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedex.lol"),
@@ -52,10 +53,16 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('basedex-theme');if(t==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){}})()`,
           }}
         />
+        <script
+          src="https://animatedicons.co/scripts/embed-animated-icons.js"
+          async
+        />
       </head>
       <body className="bg-canvas text-ink h-full h-[100dvh] flex flex-col antialiased selection:bg-hairline selection:text-ink transition-colors duration-200 overflow-hidden sm:overflow-auto">
         <ThemeProvider>
-          <Web3Provider>{children}</Web3Provider>
+          <Web3Provider>
+            <ViewProvider>{children}</ViewProvider>
+          </Web3Provider>
         </ThemeProvider>
       </body>
     </html>
