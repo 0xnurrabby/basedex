@@ -4,8 +4,8 @@ import React from "react";
 
 export function Footer() {
   return (
-    <footer className="w-full py-6 px-4 text-xs font-mono text-ink-muted transition-colors duration-200">
-      <div className="max-w-lg mx-auto flex flex-col items-center justify-center gap-2 text-center">
+    <footer className="w-full py-2.5 sm:py-3.5 px-4 text-xs font-mono text-ink-muted transition-colors duration-200 shrink-0">
+      <div className="max-w-lg mx-auto flex flex-col items-center justify-center gap-1.5 text-center">
         <div className="flex items-center gap-3 text-ink-muted">
           <a
             href="https://github.com/0xnurrabby/basedex"

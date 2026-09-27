@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { formatUnits } from "viem";
 import {
   useAccount,
@@ -54,19 +54,12 @@ export function SwapCard() {
   const priceIn = getPrice(tokenIn.isNative ? "0x0000000000000000000000000000000000000000" : tokenIn.address);
   const priceOut = getPrice(tokenOut.isNative ? "0x0000000000000000000000000000000000000000" : tokenOut.address);
 
-  const effectiveTokenAmount = React.useMemo(() => {
-    if (!amountIn || Number(amountIn) <= 0) return "";
-    if (inputMode === "token") return amountIn;
-    if (priceIn > 0) {
-      const rawVal = parseFloat(amountIn) / priceIn;
-      return rawVal.toFixed(Math.min(tokenIn.decimals, 8));
-    }
-    return "";
-  }, [amountIn, inputMode, priceIn, tokenIn.decimals]);
-
   const { data: ethBalance, refetch: refetchEth } = useBalance({
     address: userAddress,
     chainId: BASE_CHAIN_ID,
+    query: {
+      refetchInterval: 2500,
+    },
   });
 
   const { data: erc20BalanceInRaw, refetch: refetchErc20In } = useReadContract({
@@ -75,7 +68,10 @@ export function SwapCard() {
     functionName: "balanceOf",
     args: userAddress ? [userAddress] : undefined,
     chainId: BASE_CHAIN_ID,
-    query: { enabled: Boolean(userAddress && !tokenIn.isNative) },
+    query: {
+      enabled: Boolean(userAddress && !tokenIn.isNative),
+      refetchInterval: 2500,
+    },
   });
 
   const { data: erc20BalanceOutRaw, refetch: refetchErc20Out } = useReadContract({
@@ -84,14 +80,21 @@ export function SwapCard() {
     functionName: "balanceOf",
     args: userAddress ? [userAddress] : undefined,
     chainId: BASE_CHAIN_ID,
-    query: { enabled: Boolean(userAddress && !tokenOut.isNative) },
+    query: {
+      enabled: Boolean(userAddress && !tokenOut.isNative),
+      refetchInterval: 2500,
+    },
   });
 
-  const refetchBalances = () => {
+  const refetchBalances = useCallback(() => {
     refetchEth();
     if (!tokenIn.isNative) refetchErc20In();
     if (!tokenOut.isNative) refetchErc20Out();
-  };
+  }, [refetchEth, refetchErc20In, refetchErc20Out, tokenIn.isNative, tokenOut.isNative]);
+
+  useEffect(() => {
+    refetchBalances();
+  }, [tokenIn.address, tokenOut.address, refetchBalances]);
 
   const balanceIn = tokenIn.isNative
     ? ethBalance?.value !== undefined
@@ -108,6 +111,20 @@ export function SwapCard() {
     : erc20BalanceOutRaw !== undefined
     ? formatUnits(erc20BalanceOutRaw as bigint, tokenOut.decimals)
     : "0";
+
+  const effectiveTokenAmount = React.useMemo(() => {
+    if (!amountIn || Number(amountIn) <= 0) return "";
+    if (inputMode === "token") return amountIn;
+    if (priceIn > 0) {
+      const rawVal = parseFloat(amountIn) / priceIn;
+      const balNum = Number(balanceIn);
+      if (balNum > 0 && rawVal > balNum && (rawVal - balNum) / balNum < 0.02) {
+        return balanceIn;
+      }
+      return rawVal.toFixed(Math.min(tokenIn.decimals, 8));
+    }
+    return "";
+  }, [amountIn, inputMode, priceIn, tokenIn.decimals, balanceIn]);
 
   const { quote, isLoading: isQuoteLoading, error: quoteError } = useAerodromeQuote(
     tokenIn,
@@ -138,9 +155,19 @@ export function SwapCard() {
   useEffect(() => {
     if (isSwapSuccess) {
       refetchBalances();
+      const t1 = setTimeout(refetchBalances, 600);
+      const t2 = setTimeout(refetchBalances, 1500);
+      const t3 = setTimeout(refetchBalances, 3000);
+      const t4 = setTimeout(refetchBalances, 5000);
       setAmountIn("");
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+        clearTimeout(t4);
+      };
     }
-  }, [isSwapSuccess]);
+  }, [isSwapSuccess, refetchBalances]);
 
   const toggleInputMode = () => {
     if (inputMode === "token") {
@@ -186,12 +213,13 @@ export function SwapCard() {
     setTokenOut(temp);
     setAmountIn("");
     resetSwap();
+    refetchBalances();
   };
 
   const hasInsufficientBalance =
     Boolean(userAddress) &&
     Boolean(effectiveTokenAmount) &&
-    Number(effectiveTokenAmount) > Number(balanceIn);
+    Number(effectiveTokenAmount) > Number(balanceIn) + 0.0000001;
 
   let actionLabel = "Swap";
   let isActionDisabled = false;
@@ -249,16 +277,16 @@ export function SwapCard() {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <div className="rounded-xl bg-surface-card border border-hairline p-5 shadow-2xl relative transition-colors duration-200">
-        <div className="flex items-center justify-between pb-4 border-b border-hairline mb-4">
+    <div className="w-full max-w-[460px] mx-auto">
+      <div className="rounded-2xl bg-surface-card border border-hairline p-4 sm:p-5 shadow-2xl relative transition-colors duration-200">
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-hairline mb-3 sm:mb-4">
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-terminal-red" />
-              <span className="w-3 h-3 rounded-full bg-terminal-yellow" />
-              <span className="w-3 h-3 rounded-full bg-terminal-green" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-terminal-red" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-terminal-yellow" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-terminal-green" />
             </div>
-            <span className="text-xs font-mono text-ink-muted ml-2">
+            <span className="text-xs font-mono text-ink-muted ml-1.5 sm:ml-2">
               terminal://swap
             </span>
           </div>
@@ -271,7 +299,7 @@ export function SwapCard() {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-surface-soft border border-hairline transition focus-within:border-hairline-strong mb-2">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-soft border border-hairline transition focus-within:border-hairline-strong mb-2">
           <div className="flex items-center justify-between text-xs font-mono text-ink-muted mb-2">
             <span>YOU PAY</span>
             <div className="flex items-center space-x-1.5">
@@ -301,7 +329,7 @@ export function SwapCard() {
             <div className="w-full">
               <div className="flex items-center">
                 {inputMode === "usd" && (
-                  <span className="text-2xl font-mono text-ink-muted select-none mr-1">
+                  <span className="text-2xl sm:text-3xl font-mono text-ink-muted select-none mr-1">
                     $
                   </span>
                 )}
@@ -314,7 +342,7 @@ export function SwapCard() {
                     setAmountIn(e.target.value);
                     resetSwap();
                   }}
-                  className="w-full bg-transparent text-2xl font-mono text-ink placeholder:text-ink-faint focus:outline-none"
+                  className="w-full bg-transparent text-2xl sm:text-3xl font-mono text-ink placeholder:text-ink-faint focus:outline-none py-0.5"
                 />
               </div>
 
@@ -341,7 +369,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("in")}
-              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
+              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95"
             >
               <TokenLogo token={tokenIn} size="sm" />
               <span className="text-xs font-semibold">{tokenIn.symbol}</span>
@@ -353,14 +381,14 @@ export function SwapCard() {
         <div className="flex justify-center -my-3 z-10 relative">
           <button
             onClick={handleSwitchTokens}
-            className="w-8 h-8 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline hover:border-hairline-strong flex items-center justify-center text-ink-muted hover:text-ink transition shadow-lg active:scale-95"
+            className="w-8.5 h-8.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline hover:border-hairline-strong flex items-center justify-center text-ink-muted hover:text-ink transition shadow-lg active:scale-95"
             title="Invert tokens"
           >
             <ArrowUpDown className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-4 rounded-xl bg-surface-soft border border-hairline transition mb-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface-soft border border-hairline transition mb-3 sm:mb-4">
           <div className="flex items-center justify-between text-xs font-mono text-ink-muted mb-2">
             <span>YOU RECEIVE</span>
             <div className="flex items-center space-x-1.5">
@@ -380,7 +408,7 @@ export function SwapCard() {
 
           <div className="flex items-center justify-between space-x-3">
             <div className="w-full">
-              <div className="text-2xl font-mono text-ink truncate py-0.5">
+              <div className="text-2xl sm:text-3xl font-mono text-ink truncate py-0.5">
                 {isQuoteLoading ? (
                   <div className="flex items-center space-x-2 text-ink-muted text-base">
                     <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />
@@ -401,7 +429,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("out")}
-              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
+              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95"
             >
               <TokenLogo token={tokenOut} size="sm" />
               <span className="text-xs font-semibold">{tokenOut.symbol}</span>
@@ -411,7 +439,7 @@ export function SwapCard() {
         </div>
 
         {quote && (
-          <div className="mb-4 p-3.5 rounded-xl bg-surface-soft border border-hairline font-mono text-xs space-y-2">
+          <div className="mb-3 sm:mb-4 p-3 rounded-xl bg-surface-soft border border-hairline font-mono text-[11px] sm:text-xs space-y-1.5 sm:space-y-2">
             <div className="flex items-center justify-between text-ink-muted">
               <span>Rate</span>
               <span className="text-ink">
