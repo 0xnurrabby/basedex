@@ -50,6 +50,7 @@ export function SwapCard() {
   const [slippage, setSlippage] = useState<number>(0.5);
   const [modalTarget, setModalTarget] = useState<"in" | "out" | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [isSwitchRotated, setIsSwitchRotated] = useState(false);
 
   const priceIn = getPrice(tokenIn.isNative ? "0x0000000000000000000000000000000000000000" : tokenIn.address);
   const priceOut = getPrice(tokenOut.isNative ? "0x0000000000000000000000000000000000000000" : tokenOut.address);
@@ -208,6 +209,7 @@ export function SwapCard() {
   };
 
   const handleSwitchTokens = () => {
+    setIsSwitchRotated((prev) => !prev);
     const temp = tokenIn;
     setTokenIn(tokenOut);
     setTokenOut(temp);
@@ -299,7 +301,7 @@ export function SwapCard() {
           </div>
         </div>
 
-        <div className="p-4 sm:p-5 rounded-xl bg-surface-soft border border-hairline transition focus-within:border-hairline-strong mb-2">
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface-soft border border-hairline transition focus-within:border-hairline-strong">
           <div className="flex items-center justify-between text-xs font-mono text-ink-muted mb-2">
             <span>YOU PAY</span>
             <div className="flex items-center space-x-1.5">
@@ -369,7 +371,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("in")}
-              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95"
+              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95 shadow-sm"
             >
               <TokenLogo token={tokenIn} size="sm" />
               <span className="text-xs font-semibold">{tokenIn.symbol}</span>
@@ -378,17 +380,23 @@ export function SwapCard() {
           </div>
         </div>
 
-        <div className="flex justify-center -my-3 z-10 relative">
+        <div className="my-2.5 sm:my-3 flex items-center justify-center relative z-10">
           <button
+            type="button"
             onClick={handleSwitchTokens}
-            className="w-8.5 h-8.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline hover:border-hairline-strong flex items-center justify-center text-ink-muted hover:text-ink transition shadow-lg active:scale-95"
-            title="Invert tokens"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-surface-card hover:bg-surface-elevated border-2 border-hairline-strong hover:border-ink/40 flex items-center justify-center text-ink shadow-md active:scale-90 transition-all duration-200 group cursor-pointer"
+            title="Switch tokens"
+            aria-label="Switch tokens"
           >
-            <ArrowUpDown className="w-4 h-4" />
+            <ArrowUpDown
+              className={`w-5 h-5 text-ink transition-transform duration-300 ${
+                isSwitchRotated ? "rotate-180" : "rotate-0"
+              }`}
+            />
           </button>
         </div>
 
-        <div className="p-4 sm:p-5 rounded-xl bg-surface-soft border border-hairline transition mb-3 sm:mb-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-surface-soft border border-hairline transition mb-3 sm:mb-4">
           <div className="flex items-center justify-between text-xs font-mono text-ink-muted mb-2">
             <span>YOU RECEIVE</span>
             <div className="flex items-center space-x-1.5">
@@ -429,7 +437,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("out")}
-              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95"
+              className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95 shadow-sm"
             >
               <TokenLogo token={tokenOut} size="sm" />
               <span className="text-xs font-semibold">{tokenOut.symbol}</span>
