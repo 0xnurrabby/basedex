@@ -5,6 +5,7 @@
 **The minimalist on-chain swap terminal built for Base.**
 
 [![Website: basedex.lol](https://img.shields.io/badge/Website-basedex.lol-0052FF?style=for-the-badge&logo=googlechrome&logoColor=white)](https://basedex.lol)
+[![Follow: @nurlab_dev](https://img.shields.io/badge/X-@nurlab__dev-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/nurlab_dev)
 [![Network: Base](https://img.shields.io/badge/Network-Base%20(8453)-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://base.org)
 [![Router: Aerodrome](https://img.shields.io/badge/Router-Aerodrome%20Finance-00F0FF?style=for-the-badge&logo=aerodrome&logoColor=black)](https://aerodrome.finance)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
