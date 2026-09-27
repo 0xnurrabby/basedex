@@ -24,7 +24,7 @@ export function Header() {
 
   return (
     <>
-      <header className="w-full border-b border-hairline bg-canvas/90 backdrop-blur-md z-40 shrink-0 transition-colors duration-200">
+      <header className="w-full border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-40 shrink-0 transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <Logo size={26} className="text-ink shrink-0" />

@@ -58,7 +58,7 @@ export default function RootLayout({
           async
         />
       </head>
-      <body className="bg-canvas text-ink h-full h-[100dvh] flex flex-col antialiased selection:bg-hairline selection:text-ink transition-colors duration-200 overflow-hidden sm:overflow-auto">
+      <body className="bg-canvas text-ink min-h-screen min-h-[100dvh] flex flex-col antialiased selection:bg-hairline selection:text-ink transition-colors duration-200">
         <ThemeProvider>
           <Web3Provider>
             <ViewProvider>{children}</ViewProvider>

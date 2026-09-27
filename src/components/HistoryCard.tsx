@@ -127,7 +127,7 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
         </div>
 
         {/* Transaction List */}
-        <div className="space-y-2.5 max-h-[380px] sm:max-h-[420px] overflow-y-auto pr-1">
+        <div className="space-y-2.5 max-h-[280px] sm:max-h-[320px] overflow-y-auto pr-1">
           {transactions.length === 0 ? (
             <div className="p-8 text-center rounded-xl bg-surface-soft border border-hairline font-mono space-y-2">
               <Clock className="w-8 h-8 text-ink-faint mx-auto opacity-50" />
