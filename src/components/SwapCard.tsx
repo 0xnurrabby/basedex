@@ -26,7 +26,7 @@ import { useAerodromeQuote } from "../hooks/useAerodromeQuote";
 import { useTokenApproval } from "../hooks/useTokenApproval";
 import { useSwapExecution } from "../hooks/useSwapExecution";
 import { useTokenPrices } from "../hooks/useTokenPrices";
-import { useTransactionHistory } from "../hooks/useTransactionHistory";
+import { recordSwapTransaction } from "../utils/transactions";
 import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { TokenSelectModal } from "./TokenSelectModal";
 import { SlippageSettings } from "./SlippageSettings";
@@ -37,7 +37,6 @@ export function SwapCard() {
   const { address: userAddress, isConnected, chain } = useAccount();
   const { switchChain, switchChainAsync, isPending: isSwitchingChain } = useSwitchChain();
   const { connectors, connect } = useConnect();
-  const { recordTransaction } = useTransactionHistory();
 
   const isWrongNetwork = isConnected && chain?.id !== BASE_CHAIN_ID;
 
@@ -278,7 +277,7 @@ export function SwapCard() {
     if (quote && effectiveTokenAmount) {
       const hash = await executeSwap(tokenIn, tokenOut, effectiveTokenAmount, quote);
       if (hash && userAddress) {
-        recordTransaction({
+        recordSwapTransaction({
           txHash: hash,
           userAddress,
           tokenInSymbol: tokenIn.symbol,
