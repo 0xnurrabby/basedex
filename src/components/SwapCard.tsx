@@ -30,6 +30,7 @@ import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { TokenSelectModal } from "./TokenSelectModal";
 import { SlippageSettings } from "./SlippageSettings";
 import { TokenLogo } from "./TokenLogo";
+import { WalletModal } from "./WalletModal";
 
 export function SwapCard() {
   const { address: userAddress, isConnected, chain } = useAccount();
@@ -48,6 +49,7 @@ export function SwapCard() {
   const [inputMode, setInputMode] = useState<"token" | "usd">("token");
   const [slippage, setSlippage] = useState<number>(0.5);
   const [modalTarget, setModalTarget] = useState<"in" | "out" | null>(null);
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
   const priceIn = getPrice(tokenIn.isNative ? "0x0000000000000000000000000000000000000000" : tokenIn.address);
   const priceOut = getPrice(tokenOut.isNative ? "0x0000000000000000000000000000000000000000" : tokenOut.address);
@@ -225,7 +227,7 @@ export function SwapCard() {
 
   const handleAction = async () => {
     if (!isConnected) {
-      if (connectors[0]) connect({ connector: connectors[0] });
+      setShowWalletModal(true);
       return;
     }
     if (isWrongNetwork || (chain?.id && chain.id !== BASE_CHAIN_ID)) {
@@ -607,6 +609,11 @@ export function SwapCard() {
         onImportToken={importToken}
         onRemoveCustomToken={removeCustomToken}
         selectedToken={modalTarget === "in" ? tokenIn : tokenOut}
+      />
+
+      <WalletModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
       />
     </div>
   );

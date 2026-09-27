@@ -5,6 +5,8 @@ import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { BASE_CHAIN_ID, BASESCAN_URL } from "../constants/contracts";
 import { Wallet, ChevronDown, LogOut, ExternalLink, Terminal, Sun, Moon } from "lucide-react";
 import { useTheme } from "../providers/ThemeProvider";
+import { WalletModal } from "./WalletModal";
+import { Logo } from "./Logo";
 
 export function Header() {
   const { address, isConnected, chain } = useAccount();
@@ -21,40 +23,19 @@ export function Header() {
     <>
       <header className="w-full border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-40 transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-brand-base text-white flex items-center justify-center font-bold text-base shadow-sm">
-              B
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-lg tracking-tight text-ink">
-                Base Dex
-              </span>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-soft text-ink-muted border border-hairline">
-                terminal
-              </span>
-            </div>
+          <div className="flex items-center space-x-2.5">
+            <Logo size={26} className="text-ink shrink-0" />
+            <span className="font-semibold text-base sm:text-lg tracking-tight text-ink">
+              Base Dex
+            </span>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-surface-soft border border-hairline text-xs font-mono">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isWrongNetwork ? "bg-terminal-red animate-pulse" : "bg-terminal-green"
-                }`}
-              />
-              <span className="text-ink font-medium">
-                {isWrongNetwork
-                  ? `Wrong Network (${chain?.name || "Mainnet"})`
-                  : "Base (8453)"}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             <button
               onClick={toggleTheme}
-              className="w-8 h-8 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline flex items-center justify-center text-ink-muted hover:text-ink transition active:scale-95"
+              className="p-2 rounded-full text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Toggle theme"
             >
               {theme === "dark" ? (
                 <Sun className="w-4 h-4 text-terminal-yellow" />
@@ -66,21 +47,21 @@ export function Header() {
             {isWrongNetwork ? (
               <button
                 onClick={() => switchChain({ chainId: BASE_CHAIN_ID })}
-                className="px-4 py-2 rounded-full bg-terminal-red text-white text-xs font-medium hover:opacity-90 transition font-mono"
+                className="whitespace-nowrap px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-terminal-red text-white text-xs font-medium hover:opacity-90 transition font-mono shrink-0"
               >
                 Switch to Base
               </button>
             ) : isConnected && address ? (
-              <div className="relative">
+              <div className="relative shrink-0">
                 <button
                   onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-                  className="flex items-center space-x-2 px-4 py-1.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-xs font-mono text-ink transition"
+                  className="whitespace-nowrap flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-1.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-xs font-mono text-ink transition shrink-0"
                 >
-                  <span className="w-2 h-2 rounded-full bg-terminal-green" />
+                  <span className="w-2 h-2 rounded-full bg-terminal-green shrink-0" />
                   <span>
                     {address.slice(0, 6)}...{address.slice(-4)}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
+                  <ChevronDown className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                 </button>
 
                 {showAccountDropdown && (
@@ -116,7 +97,7 @@ export function Header() {
             ) : (
               <button
                 onClick={() => setShowWalletModal(true)}
-                className="px-5 py-2 rounded-full bg-ink text-canvas hover:opacity-90 active:scale-95 text-xs font-semibold tracking-wide transition shadow-sm font-sans"
+                className="whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-ink text-canvas hover:opacity-90 active:scale-95 text-xs font-semibold tracking-wide transition shadow-sm font-sans shrink-0"
               >
                 Connect Wallet
               </button>
@@ -125,58 +106,10 @@ export function Header() {
         </div>
       </header>
 
-      {showWalletModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-sm rounded-xl bg-surface-card border border-hairline p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center space-x-1.5">
-                <div className="w-3 h-3 rounded-full bg-terminal-red" />
-                <div className="w-3 h-3 rounded-full bg-terminal-yellow" />
-                <div className="w-3 h-3 rounded-full bg-terminal-green" />
-                <span className="text-xs font-mono text-ink-muted ml-2">connect://wallet</span>
-              </div>
-              <button
-                onClick={() => setShowWalletModal(false)}
-                className="text-ink-muted hover:text-ink text-xs font-mono"
-              >
-                esc
-              </button>
-            </div>
-
-            <h3 className="text-base font-medium text-ink mb-1">Connect to Base</h3>
-            <p className="text-xs text-ink-muted mb-4 font-mono">
-              Select your wallet provider to swap on Aerodrome pools.
-            </p>
-
-            <div className="space-y-2">
-              {connectors.map((connector) => (
-                <button
-                  key={connector.uid}
-                  onClick={() => {
-                    connect({ connector });
-                    setShowWalletModal(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline hover:border-hairline-strong transition text-xs font-mono text-ink"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Wallet className="w-4 h-4 text-ink-muted" />
-                    <span className="font-sans font-medium">{connector.name}</span>
-                  </div>
-                  <span className="text-[11px] text-ink-muted">connect →</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-5 pt-3 border-t border-hairline flex items-center justify-between text-[11px] text-ink-muted font-mono">
-              <span className="flex items-center gap-1">
-                <Terminal className="w-3 h-3 text-terminal-green" />
-                Chain: Base (8453)
-              </span>
-              <span className="text-terminal-green">● Aerodrome Direct Routing</span>
-            </div>
-          </div>
-        </div>
-      )}
+      <WalletModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+      />
     </>
   );
 }

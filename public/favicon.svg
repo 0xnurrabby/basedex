@@ -1,0 +1,10 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    path.top-bar { stroke: #0F172A; }
+    @media (prefers-color-scheme: dark) {
+      path.top-bar { stroke: #F5F5F5; }
+    }
+  </style>
+  <path class="top-bar" d="M 6 14 H 32 M 24 7 L 32 14 L 24 21" stroke="#0F172A" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 34 26 H 8 M 16 19 L 8 26 L 16 33" stroke="#0052FF" stroke-width="3.25" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
