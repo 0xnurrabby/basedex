@@ -10,6 +10,7 @@ import { ERC20_ABI } from "../constants/abis";
 import { BASE_CHAIN_ID } from "../constants/contracts";
 import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { useTokenPrices } from "../hooks/useTokenPrices";
+import { TokenLogo } from "./TokenLogo";
 
 interface TokenSelectModalProps {
   isOpen: boolean;
@@ -243,17 +244,7 @@ export function TokenSelectModal({
                   }}
                 >
                   <div className="flex items-center space-x-3 min-w-0">
-                    {tok.logoURI ? (
-                      <img
-                        src={tok.logoURI}
-                        alt={tok.symbol}
-                        className="w-7 h-7 rounded-full bg-surface-soft shrink-0"
-                      />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-surface-elevated border border-hairline flex items-center justify-center text-xs font-mono font-bold text-ink shrink-0">
-                        {tok.symbol.slice(0, 2)}
-                      </div>
-                    )}
+                    <TokenLogo token={tok} size="md" />
 
                     <div className="min-w-0">
                       <div className="flex items-center space-x-1.5">

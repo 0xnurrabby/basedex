@@ -29,6 +29,7 @@ import { useTokenPrices } from "../hooks/useTokenPrices";
 import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { TokenSelectModal } from "./TokenSelectModal";
 import { SlippageSettings } from "./SlippageSettings";
+import { TokenLogo } from "./TokenLogo";
 
 export function SwapCard() {
   const { address: userAddress, isConnected, chain } = useAccount();
@@ -340,17 +341,7 @@ export function SwapCard() {
               onClick={() => setModalTarget("in")}
               className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
             >
-              {tokenIn.logoURI ? (
-                <img
-                  src={tokenIn.logoURI}
-                  alt={tokenIn.symbol}
-                  className="w-5 h-5 rounded-full bg-surface-soft"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold text-ink">
-                  {tokenIn.symbol.slice(0, 2)}
-                </div>
-              )}
+              <TokenLogo token={tokenIn} size="sm" />
               <span className="text-xs font-semibold">{tokenIn.symbol}</span>
               <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
             </button>
@@ -410,17 +401,7 @@ export function SwapCard() {
               onClick={() => setModalTarget("out")}
               className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
             >
-              {tokenOut.logoURI ? (
-                <img
-                  src={tokenOut.logoURI}
-                  alt={tokenOut.symbol}
-                  className="w-5 h-5 rounded-full bg-surface-soft"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold text-ink">
-                  {tokenOut.symbol.slice(0, 2)}
-                </div>
-              )}
+              <TokenLogo token={tokenOut} size="sm" />
               <span className="text-xs font-semibold">{tokenOut.symbol}</span>
               <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
             </button>
