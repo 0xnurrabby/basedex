@@ -17,7 +17,7 @@ export function Header() {
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { theme, toggleTheme } = useTheme();
-  const { view, toggleView } = useView();
+  const { view, setView, toggleView } = useView();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 
@@ -27,12 +27,23 @@ export function Header() {
     <>
       <header className="w-full border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-40 shrink-0 transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <Logo size={26} className="text-ink shrink-0" />
-            <span className="font-semibold text-base sm:text-lg tracking-tight text-ink">
+          <button
+            onClick={() => {
+              triggerFeedback();
+              setView("swap");
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="flex items-center space-x-2.5 transition active:scale-95 cursor-pointer select-none group text-left bg-transparent border-0 p-0 focus:outline-none"
+            title="Base Dex Home"
+            aria-label="Base Dex Home"
+          >
+            <Logo size={26} className="text-ink shrink-0 group-hover:scale-105 transition-transform" />
+            <span className="font-semibold text-base sm:text-lg tracking-tight text-ink group-hover:opacity-80 transition-opacity">
               Base Dex
             </span>
-          </div>
+          </button>
 
           <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
             <button
