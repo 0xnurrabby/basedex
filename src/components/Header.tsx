@@ -9,6 +9,7 @@ import { useView } from "../providers/ViewProvider";
 import { WalletModal } from "./WalletModal";
 import { Logo } from "./Logo";
 import { ArchiveIcon } from "./ArchiveIcon";
+import { triggerFeedback } from "../utils/feedback";
 
 export function Header() {
   const { address, isConnected, chain } = useAccount();
@@ -33,45 +34,57 @@ export function Header() {
             </span>
           </div>
 
-          <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
+          <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
             <button
-              onClick={toggleView}
-              className={`p-1.5 sm:p-2 rounded-full transition active:scale-95 shrink-0 flex items-center justify-center ${
+              onClick={() => {
+                triggerFeedback();
+                toggleView();
+              }}
+              className={`p-1 rounded-xl transition-all duration-200 active:scale-95 shrink-0 flex items-center justify-center bg-transparent ${
                 view === "history"
-                  ? "bg-surface-elevated text-ink ring-1 ring-hairline"
-                  : "text-ink-muted hover:text-ink hover:bg-surface-soft/60"
+                  ? "border border-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.2)]"
+                  : "border border-transparent hover:border-hairline/60"
               }`}
               title={view === "history" ? "Switch to Swap" : "Transaction History"}
               aria-label="Transaction History"
             >
-              <ArchiveIcon size={20} />
+              <ArchiveIcon size={36} />
             </button>
 
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center"
+              onClick={() => {
+                triggerFeedback();
+                toggleTheme();
+              }}
+              className="p-1.5 sm:p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-surface-soft/60 transition active:scale-95 shrink-0 flex items-center justify-center bg-transparent border border-transparent hover:border-hairline/60"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-terminal-yellow" />
+                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-terminal-yellow" />
               ) : (
-                <Moon className="w-4 h-4 text-ink" />
+                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-ink" />
               )}
             </button>
 
             {isWrongNetwork ? (
               <button
-                onClick={() => switchChain({ chainId: BASE_CHAIN_ID })}
-                className="whitespace-nowrap px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-terminal-red text-white text-xs font-medium hover:opacity-90 transition font-mono shrink-0"
+                onClick={() => {
+                  triggerFeedback();
+                  switchChain({ chainId: BASE_CHAIN_ID });
+                }}
+                className="whitespace-nowrap px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-terminal-red text-white text-xs font-medium hover:opacity-90 transition font-mono shrink-0 active:scale-95"
               >
                 Switch to Base
               </button>
             ) : isConnected && address ? (
               <div className="relative shrink-0">
                 <button
-                  onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-                  className="whitespace-nowrap flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-1.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-xs font-mono text-ink transition shrink-0"
+                  onClick={() => {
+                    triggerFeedback();
+                    setShowAccountDropdown(!showAccountDropdown);
+                  }}
+                  className="whitespace-nowrap flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-1.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-xs font-mono text-ink transition shrink-0 active:scale-95"
                 >
                   <span className="w-2 h-2 rounded-full bg-terminal-green shrink-0" />
                   <span>
@@ -99,6 +112,7 @@ export function Header() {
 
                     <button
                       onClick={() => {
+                        triggerFeedback();
                         disconnect();
                         setShowAccountDropdown(false);
                       }}
@@ -112,7 +126,10 @@ export function Header() {
               </div>
             ) : (
               <button
-                onClick={() => setShowWalletModal(true)}
+                onClick={() => {
+                  triggerFeedback();
+                  setShowWalletModal(true);
+                }}
                 className="whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-ink text-canvas hover:opacity-90 active:scale-95 text-xs font-semibold tracking-wide transition shadow-sm font-sans shrink-0"
               >
                 Connect Wallet

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
+import { triggerFeedback } from "../utils/feedback";
 
 interface SlippageSettingsProps {
   slippage: number;
@@ -28,8 +29,11 @@ export function SlippageSettings({
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-ink-muted hover:text-ink transition text-xs font-mono"
+        onClick={() => {
+          triggerFeedback();
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-ink-muted hover:text-ink transition text-xs font-mono active:scale-95"
         title="Slippage settings"
       >
         <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -43,7 +47,10 @@ export function SlippageSettings({
               Slippage Tolerance
             </span>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                triggerFeedback();
+                setIsOpen(false);
+              }}
               className="text-ink-muted hover:text-ink text-xs font-mono"
             >
               done
@@ -55,10 +62,11 @@ export function SlippageSettings({
               <button
                 key={preset}
                 onClick={() => {
+                  triggerFeedback();
                   onSlippageChange(preset);
                   setCustomValue("");
                 }}
-                className={`flex-1 py-1.5 rounded-full text-xs font-mono transition border ${
+                className={`flex-1 py-1.5 rounded-full text-xs font-mono transition border active:scale-95 ${
                   slippage === preset && !customValue
                     ? "bg-ink text-canvas font-semibold border-ink"
                     : "bg-surface-soft text-ink-muted hover:text-ink border-hairline"

@@ -14,6 +14,7 @@ import {
   Check,
 } from "lucide-react";
 import { useTransactionHistory } from "../hooks/useTransactionHistory";
+import { triggerFeedback } from "../utils/feedback";
 
 interface HistoryCardProps {
   onBack: () => void;
@@ -32,6 +33,7 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
   const handleCopy = (hash: string) => {
+    triggerFeedback();
     navigator.clipboard.writeText(hash);
     setCopiedHash(hash);
     setTimeout(() => setCopiedHash(null), 1800);
@@ -74,7 +76,10 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
 
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => refetch()}
+              onClick={() => {
+                triggerFeedback();
+                refetch();
+              }}
               disabled={isLoading}
               className="p-1.5 rounded-full hover:bg-surface-soft text-ink-muted hover:text-ink transition active:scale-95"
               title="Refresh transaction history"
@@ -86,7 +91,10 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
             </button>
 
             <button
-              onClick={onBack}
+              onClick={() => {
+                triggerFeedback();
+                onBack();
+              }}
               className="px-2.5 py-1 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-ink text-[11px] font-mono flex items-center gap-1 transition active:scale-95"
               title="Return to swap terminal"
             >
@@ -100,7 +108,10 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
         <div className="flex items-center justify-between mb-3 text-xs font-mono">
           <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-surface-soft border border-hairline">
             <button
-              onClick={() => setFilterMode("my")}
+              onClick={() => {
+                triggerFeedback();
+                setFilterMode("my");
+              }}
               className={`px-3 py-1 rounded-md text-[11px] transition ${
                 filterMode === "my"
                   ? "bg-surface-card text-ink shadow-sm font-semibold"
@@ -110,7 +121,10 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
               My Swaps
             </button>
             <button
-              onClick={() => setFilterMode("all")}
+              onClick={() => {
+                triggerFeedback();
+                setFilterMode("all");
+              }}
               className={`px-3 py-1 rounded-md text-[11px] transition ${
                 filterMode === "all"
                   ? "bg-surface-card text-ink shadow-sm font-semibold"
@@ -212,7 +226,10 @@ export function HistoryCard({ onBack }: HistoryCardProps) {
 
         {/* Bottom Return Button */}
         <button
-          onClick={onBack}
+          onClick={() => {
+            triggerFeedback();
+            onBack();
+          }}
           className="mt-3.5 w-full py-2.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline font-mono text-xs text-ink transition active:scale-[0.99] flex items-center justify-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" />

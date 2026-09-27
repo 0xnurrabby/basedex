@@ -3,6 +3,7 @@
 import React from "react";
 import { useConnect } from "wagmi";
 import { Wallet, Terminal, X } from "lucide-react";
+import { triggerFeedback } from "../utils/feedback";
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -33,7 +34,10 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             </span>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              triggerFeedback();
+              onClose();
+            }}
             className="text-ink-muted hover:text-ink p-1 rounded-md transition"
           >
             <X className="w-4 h-4" />
@@ -52,6 +56,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <button
               key={connector.uid}
               onClick={() => {
+                triggerFeedback();
                 connect({ connector });
                 onClose();
               }}

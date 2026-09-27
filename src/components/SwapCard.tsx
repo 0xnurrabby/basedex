@@ -32,6 +32,7 @@ import { TokenSelectModal } from "./TokenSelectModal";
 import { SlippageSettings } from "./SlippageSettings";
 import { TokenLogo } from "./TokenLogo";
 import { WalletModal } from "./WalletModal";
+import { triggerFeedback } from "../utils/feedback";
 
 export function SwapCard() {
   const { address: userAddress, isConnected, chain } = useAccount();
@@ -172,6 +173,7 @@ export function SwapCard() {
   }, [isSwapSuccess, refetchBalances]);
 
   const toggleInputMode = () => {
+    triggerFeedback();
     if (inputMode === "token") {
       if (amountIn && Number(amountIn) > 0 && priceIn > 0) {
         setAmountIn((parseFloat(amountIn) * priceIn).toFixed(2));
@@ -187,6 +189,7 @@ export function SwapCard() {
   };
 
   const handleMax = () => {
+    triggerFeedback();
     if (!balanceIn || Number(balanceIn) <= 0) return;
     let maxToken = balanceIn;
     if (tokenIn.isNative) {
@@ -210,6 +213,7 @@ export function SwapCard() {
   };
 
   const handleSwitchTokens = () => {
+    triggerFeedback();
     setIsSwitchRotated((prev) => !prev);
     const temp = tokenIn;
     setTokenIn(tokenOut);
@@ -257,6 +261,7 @@ export function SwapCard() {
   }
 
   const handleAction = async () => {
+    triggerFeedback();
     if (!isConnected) {
       setShowWalletModal(true);
       return;
@@ -386,7 +391,10 @@ export function SwapCard() {
             </div>
 
             <button
-              onClick={() => setModalTarget("in")}
+              onClick={() => {
+                triggerFeedback();
+                setModalTarget("in");
+              }}
               className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95 shadow-sm"
             >
               <TokenLogo token={tokenIn} size="sm" />
@@ -452,7 +460,10 @@ export function SwapCard() {
             </div>
 
             <button
-              onClick={() => setModalTarget("out")}
+              onClick={() => {
+                triggerFeedback();
+                setModalTarget("out");
+              }}
               className="flex items-center space-x-2 px-3.5 py-2 sm:py-2.5 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0 active:scale-95 shadow-sm"
             >
               <TokenLogo token={tokenOut} size="sm" />
@@ -505,7 +516,10 @@ export function SwapCard() {
               </span>
             </div>
             <button
-              onClick={() => switchChain({ chainId: BASE_CHAIN_ID })}
+              onClick={() => {
+                triggerFeedback();
+                switchChain({ chainId: BASE_CHAIN_ID });
+              }}
               disabled={isSwitchingChain}
               className="px-3.5 py-1.5 rounded-full bg-ink text-canvas font-semibold text-[11px] hover:opacity-90 transition shadow shrink-0 active:scale-95"
             >
@@ -536,10 +550,11 @@ export function SwapCard() {
             </div>
             <button
               onClick={() => {
+                triggerFeedback();
                 resetApprovalState();
                 resetSwap();
               }}
-              className="text-ink hover:underline text-[10px] shrink-0 font-mono ml-2"
+              className="text-ink hover:underline text-[10px] shrink-0 font-mono ml-2 active:scale-95"
             >
               Clear
             </button>
@@ -568,8 +583,11 @@ export function SwapCard() {
               <span>Confirming on Base (blocks take ~2s)...</span>
             </span>
             <button
-              onClick={resetApprovalState}
-              className="text-ink hover:underline"
+              onClick={() => {
+                triggerFeedback();
+                resetApprovalState();
+              }}
+              className="text-ink hover:underline active:scale-95"
             >
               Reset / Force check
             </button>

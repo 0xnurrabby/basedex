@@ -11,6 +11,7 @@ import { BASE_CHAIN_ID } from "../constants/contracts";
 import { formatTokenBalance, formatUsdValue } from "../utils/formatters";
 import { useTokenPrices } from "../hooks/useTokenPrices";
 import { TokenLogo } from "./TokenLogo";
+import { triggerFeedback } from "../utils/feedback";
 
 interface TokenSelectModalProps {
   isOpen: boolean;
@@ -118,7 +119,10 @@ export function TokenSelectModal({
             </span>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              triggerFeedback();
+              onClose();
+            }}
             className="text-ink-muted hover:text-ink p-1 rounded-md transition"
           >
             <X className="w-4 h-4" />
@@ -190,21 +194,23 @@ export function TokenSelectModal({
                   {isAlreadyImported ? (
                     <button
                       onClick={() => {
+                        triggerFeedback();
                         onSelectToken(fetchedCustomToken);
                         onClose();
                       }}
-                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90"
+                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90 active:scale-[0.98]"
                     >
                       Already in list · Select {fetchedCustomToken.symbol}
                     </button>
                   ) : (
                     <button
                       onClick={() => {
+                        triggerFeedback();
                         onImportToken(fetchedCustomToken);
                         onSelectToken(fetchedCustomToken);
                         onClose();
                       }}
-                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90 shadow-sm"
+                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90 shadow-sm active:scale-[0.98]"
                     >
                       Import & Select {fetchedCustomToken.symbol}
                     </button>
@@ -239,6 +245,7 @@ export function TokenSelectModal({
                       : "border-transparent"
                   }`}
                   onClick={() => {
+                    triggerFeedback();
                     onSelectToken(tok);
                     onClose();
                   }}
@@ -290,6 +297,7 @@ export function TokenSelectModal({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          triggerFeedback();
                           onRemoveCustomToken(tok.address);
                         }}
                         title="Remove imported token"
