@@ -104,7 +104,7 @@ export function TokenSelectModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-xl bg-surface-card border border-hairline p-5 shadow-2xl flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-md rounded-xl bg-surface-card border border-hairline p-5 shadow-2xl flex flex-col max-h-[85vh] transition-colors duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-hairline mb-4">
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1.5">
@@ -118,7 +118,7 @@ export function TokenSelectModal({
           </div>
           <button
             onClick={onClose}
-            className="text-ink-muted hover:text-white p-1 rounded-md transition"
+            className="text-ink-muted hover:text-ink p-1 rounded-md transition"
           >
             <X className="w-4 h-4" />
           </button>
@@ -132,7 +132,7 @@ export function TokenSelectModal({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus
-            className="w-full bg-surface-soft border border-hairline focus:border-hairline-strong focus:outline-none text-white text-xs font-mono pl-10 pr-4 py-2.5 rounded-full placeholder:text-ink-faint transition"
+            className="w-full bg-surface-soft border border-hairline focus:border-hairline-strong focus:outline-none text-ink text-xs font-mono pl-10 pr-4 py-2.5 rounded-full placeholder:text-ink-faint transition"
           />
         </div>
 
@@ -155,7 +155,7 @@ export function TokenSelectModal({
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-white text-sm">
+                    <span className="font-bold text-ink text-sm">
                       {fetchedCustomToken.symbol}
                     </span>
                     <span className="text-ink-muted ml-2">
@@ -192,7 +192,7 @@ export function TokenSelectModal({
                         onSelectToken(fetchedCustomToken);
                         onClose();
                       }}
-                      className="w-full py-2 rounded-full bg-white text-black font-semibold text-xs transition hover:bg-ink-deep"
+                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90"
                     >
                       Already in list · Select {fetchedCustomToken.symbol}
                     </button>
@@ -203,7 +203,7 @@ export function TokenSelectModal({
                         onSelectToken(fetchedCustomToken);
                         onClose();
                       }}
-                      className="w-full py-2 rounded-full bg-white text-black font-semibold text-xs transition hover:bg-ink-deep shadow-sm"
+                      className="w-full py-2 rounded-full bg-ink text-canvas font-semibold text-xs transition hover:opacity-90 shadow-sm"
                     >
                       Import & Select {fetchedCustomToken.symbol}
                     </button>
@@ -250,14 +250,14 @@ export function TokenSelectModal({
                         className="w-7 h-7 rounded-full bg-surface-soft shrink-0"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-surface-elevated border border-hairline flex items-center justify-center text-xs font-mono font-bold text-white shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-surface-elevated border border-hairline flex items-center justify-center text-xs font-mono font-bold text-ink shrink-0">
                         {tok.symbol.slice(0, 2)}
                       </div>
                     )}
 
                     <div className="min-w-0">
                       <div className="flex items-center space-x-1.5">
-                        <span className="font-semibold text-xs text-white">
+                        <span className="font-semibold text-xs text-ink">
                           {tok.symbol}
                         </span>
                         {tok.isCustom && (
@@ -274,7 +274,7 @@ export function TokenSelectModal({
 
                   <div className="flex items-center space-x-2 shrink-0">
                     <div className="text-right">
-                      <div className="text-xs font-mono text-white">
+                      <div className="text-xs font-mono text-ink">
                         {balance !== undefined ? formatTokenBalance(balance) : "-"}
                       </div>
                       <div className="text-[10px] font-mono text-ink-faint">

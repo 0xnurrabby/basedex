@@ -214,7 +214,7 @@ export function SwapCard() {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      <div className="rounded-xl bg-surface-card border border-hairline p-5 shadow-2xl relative">
+      <div className="rounded-xl bg-surface-card border border-hairline p-5 shadow-2xl relative transition-colors duration-200">
         <div className="flex items-center justify-between pb-4 border-b border-hairline mb-4">
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1.5">
@@ -241,7 +241,7 @@ export function SwapCard() {
             <div className="flex items-center space-x-1.5">
               <span>
                 Balance:{" "}
-                <span className="text-white font-medium">
+                <span className="text-ink font-medium">
                   {formatTokenBalance(balanceIn)}
                 </span>
                 {Number(balanceIn) > 0 && priceIn > 0 && (
@@ -253,7 +253,7 @@ export function SwapCard() {
               {isConnected && Number(balanceIn) > 0 && (
                 <button
                   onClick={handleMax}
-                  className="px-2 py-0.5 rounded-full bg-surface-card border border-hairline text-ink hover:text-white hover:border-hairline-strong transition text-[10px] font-mono"
+                  className="px-2 py-0.5 rounded-full bg-surface-card border border-hairline text-ink hover:border-hairline-strong transition text-[10px] font-mono"
                 >
                   MAX
                 </button>
@@ -272,7 +272,7 @@ export function SwapCard() {
                   setAmountIn(e.target.value);
                   resetSwap();
                 }}
-                className="w-full bg-transparent text-2xl font-mono text-white placeholder:text-ink-faint focus:outline-none"
+                className="w-full bg-transparent text-2xl font-mono text-ink placeholder:text-ink-faint focus:outline-none"
               />
               {amountIn && Number(amountIn) > 0 && priceIn > 0 && (
                 <div className="text-[11px] font-mono text-ink-muted mt-0.5">
@@ -283,7 +283,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("in")}
-              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-white transition shrink-0"
+              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
             >
               {tokenIn.logoURI ? (
                 <img
@@ -292,7 +292,7 @@ export function SwapCard() {
                   className="w-5 h-5 rounded-full bg-surface-soft"
                 />
               ) : (
-                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold">
+                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold text-ink">
                   {tokenIn.symbol.slice(0, 2)}
                 </div>
               )}
@@ -305,7 +305,7 @@ export function SwapCard() {
         <div className="flex justify-center -my-3 z-10 relative">
           <button
             onClick={handleSwitchTokens}
-            className="w-8 h-8 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline hover:border-hairline-strong flex items-center justify-center text-ink-muted hover:text-white transition shadow-lg active:scale-95"
+            className="w-8 h-8 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline hover:border-hairline-strong flex items-center justify-center text-ink-muted hover:text-ink transition shadow-lg active:scale-95"
             title="Invert tokens"
           >
             <ArrowUpDown className="w-4 h-4" />
@@ -318,7 +318,7 @@ export function SwapCard() {
             <div className="flex items-center space-x-1.5">
               <span>
                 Balance:{" "}
-                <span className="text-white font-medium">
+                <span className="text-ink font-medium">
                   {formatTokenBalance(balanceOut)}
                 </span>
                 {Number(balanceOut) > 0 && priceOut > 0 && (
@@ -332,7 +332,7 @@ export function SwapCard() {
 
           <div className="flex items-center justify-between space-x-3">
             <div className="w-full">
-              <div className="text-2xl font-mono text-white truncate py-0.5">
+              <div className="text-2xl font-mono text-ink truncate py-0.5">
                 {isQuoteLoading ? (
                   <div className="flex items-center space-x-2 text-ink-muted text-base">
                     <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />
@@ -353,7 +353,7 @@ export function SwapCard() {
 
             <button
               onClick={() => setModalTarget("out")}
-              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-white transition shrink-0"
+              className="flex items-center space-x-2 px-3.5 py-2 rounded-full bg-surface-card hover:bg-surface-elevated border border-hairline text-ink transition shrink-0"
             >
               {tokenOut.logoURI ? (
                 <img
@@ -362,7 +362,7 @@ export function SwapCard() {
                   className="w-5 h-5 rounded-full bg-surface-soft"
                 />
               ) : (
-                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold">
+                <div className="w-5 h-5 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-[10px] font-mono font-bold text-ink">
                   {tokenOut.symbol.slice(0, 2)}
                 </div>
               )}
@@ -376,14 +376,14 @@ export function SwapCard() {
           <div className="mb-4 p-3.5 rounded-xl bg-surface-soft border border-hairline font-mono text-xs space-y-2">
             <div className="flex items-center justify-between text-ink-muted">
               <span>Rate</span>
-              <span className="text-white">
+              <span className="text-ink">
                 1 {tokenIn.symbol} ≈ {quote.executionPrice} {tokenOut.symbol}
               </span>
             </div>
 
             <div className="flex items-center justify-between text-ink-muted">
               <span>Guaranteed Min ({100 - slippage}%)</span>
-              <span className="text-white">
+              <span className="text-ink">
                 {Number(quote.amountOutMinFormatted).toLocaleString(undefined, {
                   maximumFractionDigits: 6,
                 })}{" "}
@@ -417,7 +417,7 @@ export function SwapCard() {
             <button
               onClick={() => switchChain({ chainId: BASE_CHAIN_ID })}
               disabled={isSwitchingChain}
-              className="px-3.5 py-1.5 rounded-full bg-white text-black font-semibold text-[11px] hover:bg-ink-deep transition shadow shrink-0 active:scale-95"
+              className="px-3.5 py-1.5 rounded-full bg-ink text-canvas font-semibold text-[11px] hover:opacity-90 transition shadow shrink-0 active:scale-95"
             >
               {isSwitchingChain ? "Switching..." : "Switch to Base"}
             </button>
@@ -449,7 +449,7 @@ export function SwapCard() {
                 resetApprovalState();
                 resetSwap();
               }}
-              className="text-white hover:underline text-[10px] shrink-0 font-mono ml-2"
+              className="text-ink hover:underline text-[10px] shrink-0 font-mono ml-2"
             >
               Clear
             </button>
@@ -459,10 +459,10 @@ export function SwapCard() {
         <button
           onClick={handleAction}
           disabled={isActionDisabled}
-          className={`w-full py-3.5 rounded-full font-semibold text-xs transition tracking-wide flex items-center justify-center space-x-2 shadow-sm ${
+          className={`w-full py-3.5 rounded-full font-semibold text-xs transition tracking-wide flex items-center justify-center space-x-2 shadow-sm font-sans ${
             isActionDisabled
               ? "bg-surface-soft text-ink-faint border border-hairline cursor-not-allowed"
-              : "bg-white text-black hover:bg-ink-deep active:scale-[0.99] cursor-pointer"
+              : "bg-ink text-canvas hover:opacity-90 active:scale-[0.99] cursor-pointer"
           }`}
         >
           {(isApproving || isSwapPending || isSwapConfirming) && (
@@ -479,7 +479,7 @@ export function SwapCard() {
             </span>
             <button
               onClick={resetApprovalState}
-              className="text-white hover:underline"
+              className="text-ink hover:underline"
             >
               Reset / Force check
             </button>
@@ -508,7 +508,7 @@ export function SwapCard() {
                   href={`${BASESCAN_URL}/tx/${swapTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:underline flex items-center gap-1"
+                  className="text-ink hover:underline flex items-center gap-1"
                 >
                   <span>
                     {swapTxHash.slice(0, 8)}...{swapTxHash.slice(-6)}
@@ -526,7 +526,7 @@ export function SwapCard() {
                     href={`${BASESCAN_URL}/tx/${approveTxHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white hover:underline flex items-center gap-1"
+                    className="text-ink hover:underline flex items-center gap-1"
                   >
                     <span>
                       {approveTxHash.slice(0, 8)}...{approveTxHash.slice(-6)}
@@ -536,7 +536,7 @@ export function SwapCard() {
                   {!isApproved && (
                     <button
                       onClick={resetApprovalState}
-                      className="px-2 py-0.5 rounded-full bg-surface-card border border-hairline text-ink hover:text-white hover:border-hairline-strong text-[10px]"
+                      className="px-2 py-0.5 rounded-full bg-surface-card border border-hairline text-ink hover:border-hairline-strong text-[10px]"
                     >
                       Re-check
                     </button>

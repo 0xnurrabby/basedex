@@ -29,7 +29,7 @@ export function SlippageSettings({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-ink-muted hover:text-white transition text-xs font-mono"
+        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline text-ink-muted hover:text-ink transition text-xs font-mono"
         title="Slippage settings"
       >
         <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -37,14 +37,14 @@ export function SlippageSettings({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 p-4 rounded-xl bg-surface-card border border-hairline shadow-2xl z-30">
+        <div className="absolute right-0 mt-2 w-64 p-4 rounded-xl bg-surface-card border border-hairline shadow-2xl z-30 transition-colors duration-200">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-hairline">
-            <span className="text-xs font-mono font-semibold text-white">
+            <span className="text-xs font-mono font-semibold text-ink">
               Slippage Tolerance
             </span>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-ink-muted hover:text-white text-xs font-mono"
+              className="text-ink-muted hover:text-ink text-xs font-mono"
             >
               done
             </button>
@@ -60,8 +60,8 @@ export function SlippageSettings({
                 }}
                 className={`flex-1 py-1.5 rounded-full text-xs font-mono transition border ${
                   slippage === preset && !customValue
-                    ? "bg-white text-black font-semibold border-white"
-                    : "bg-surface-soft text-ink-muted hover:text-white border-hairline"
+                    ? "bg-ink text-canvas font-semibold border-ink"
+                    : "bg-surface-soft text-ink-muted hover:text-ink border-hairline"
                 }`}
               >
                 {preset}%
@@ -77,7 +77,7 @@ export function SlippageSettings({
                 placeholder="Custom"
                 value={customValue}
                 onChange={(e) => handleCustomChange(e.target.value)}
-                className="w-full bg-surface-soft border border-hairline focus:border-hairline-strong text-white text-xs font-mono px-3 py-1.5 rounded-full placeholder:text-ink-faint focus:outline-none"
+                className="w-full bg-surface-soft border border-hairline focus:border-hairline-strong text-ink text-xs font-mono px-3 py-1.5 rounded-full placeholder:text-ink-faint focus:outline-none"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted text-xs font-mono">
                 %

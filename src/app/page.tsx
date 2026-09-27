@@ -8,12 +8,12 @@ import { Shield, Zap, RefreshCw } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col bg-canvas text-ink transition-colors duration-200">
       <Header />
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 pt-10 pb-16 max-w-5xl mx-auto w-full">
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-ink">
             The minimalist DEX terminal for Base.
           </h1>
         </div>
@@ -22,10 +22,10 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16 w-full max-w-4xl">
           <div className="p-5 rounded-xl bg-surface-card border border-hairline font-mono">
-            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-white mb-3">
+            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-ink mb-3">
               <Zap className="w-4 h-4 text-terminal-yellow" />
             </div>
-            <h4 className="text-sm font-semibold text-white mb-1">
+            <h4 className="text-sm font-semibold text-ink mb-1">
               Direct Aerodrome Routing
             </h4>
             <p className="text-xs text-ink-muted leading-relaxed">
@@ -35,10 +35,10 @@ export default function Home() {
           </div>
 
           <div className="p-5 rounded-xl bg-surface-card border border-hairline font-mono">
-            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-white mb-3">
+            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-ink mb-3">
               <RefreshCw className="w-4 h-4 text-terminal-green" />
             </div>
-            <h4 className="text-sm font-semibold text-white mb-1">
+            <h4 className="text-sm font-semibold text-ink mb-1">
               Custom Token Import
             </h4>
             <p className="text-xs text-ink-muted leading-relaxed">
@@ -48,10 +48,10 @@ export default function Home() {
           </div>
 
           <div className="p-5 rounded-xl bg-surface-card border border-hairline font-mono">
-            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-white mb-3">
+            <div className="w-8 h-8 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-ink mb-3">
               <Shield className="w-4 h-4 text-terminal-green" />
             </div>
-            <h4 className="text-sm font-semibold text-white mb-1">
+            <h4 className="text-sm font-semibold text-ink mb-1">
               Non-Custodial & Secure
             </h4>
             <p className="text-xs text-ink-muted leading-relaxed">

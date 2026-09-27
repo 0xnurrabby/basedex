@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { BASE_CHAIN_ID, BASESCAN_URL } from "../constants/contracts";
-import { Wallet, ChevronDown, LogOut, ExternalLink, Terminal } from "lucide-react";
+import { Wallet, ChevronDown, LogOut, ExternalLink, Terminal, Sun, Moon } from "lucide-react";
+import { useTheme } from "../providers/ThemeProvider";
 
 export function Header() {
   const { address, isConnected, chain } = useAccount();
   const { switchChain } = useSwitchChain();
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
+  const { theme, toggleTheme } = useTheme();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 
@@ -17,10 +19,10 @@ export function Header() {
 
   return (
     <>
-      <header className="w-full border-b border-hairline/80 bg-canvas/90 backdrop-blur-md sticky top-0 z-40">
+      <header className="w-full border-b border-hairline bg-canvas/90 backdrop-blur-md sticky top-0 z-40 transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-base shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-brand-base text-white flex items-center justify-center font-bold text-base shadow-sm">
               B
             </div>
             <div className="flex items-center space-x-2">
@@ -40,7 +42,7 @@ export function Header() {
                   isWrongNetwork ? "bg-terminal-red animate-pulse" : "bg-terminal-green"
                 }`}
               />
-              <span className="text-white font-medium">
+              <span className="text-ink font-medium">
                 {isWrongNetwork
                   ? `Wrong Network (${chain?.name || "Mainnet"})`
                   : "Base (8453)"}
@@ -49,6 +51,18 @@ export function Header() {
           </div>
 
           <div className="flex items-center space-x-3">
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline flex items-center justify-center text-ink-muted hover:text-ink transition active:scale-95"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-terminal-yellow" />
+              ) : (
+                <Moon className="w-4 h-4 text-ink" />
+              )}
+            </button>
+
             {isWrongNetwork ? (
               <button
                 onClick={() => switchChain({ chainId: BASE_CHAIN_ID })}
@@ -73,14 +87,14 @@ export function Header() {
                   <div className="absolute right-0 mt-2 w-56 rounded-xl bg-surface-card border border-hairline p-2 shadow-2xl z-50">
                     <div className="px-3 py-2 border-b border-hairline mb-1">
                       <p className="text-[11px] text-ink-muted font-mono">Connected as</p>
-                      <p className="text-xs font-mono text-white truncate">{address}</p>
+                      <p className="text-xs font-mono text-ink truncate">{address}</p>
                     </div>
 
                     <a
                       href={`${BASESCAN_URL}/address/${address}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between px-3 py-2 text-xs font-mono text-ink-muted hover:text-white rounded-lg hover:bg-surface-soft transition"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-mono text-ink-muted hover:text-ink rounded-lg hover:bg-surface-soft transition"
                     >
                       <span>View on Basescan</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -102,7 +116,7 @@ export function Header() {
             ) : (
               <button
                 onClick={() => setShowWalletModal(true)}
-                className="px-5 py-2 rounded-full bg-white text-black hover:bg-ink-deep active:scale-95 text-xs font-semibold tracking-wide transition shadow-sm"
+                className="px-5 py-2 rounded-full bg-ink text-canvas hover:opacity-90 active:scale-95 text-xs font-semibold tracking-wide transition shadow-sm font-sans"
               >
                 Connect Wallet
               </button>
@@ -123,13 +137,13 @@ export function Header() {
               </div>
               <button
                 onClick={() => setShowWalletModal(false)}
-                className="text-ink-muted hover:text-white text-xs font-mono"
+                className="text-ink-muted hover:text-ink text-xs font-mono"
               >
                 esc
               </button>
             </div>
 
-            <h3 className="text-base font-medium text-white mb-1">Connect to Base</h3>
+            <h3 className="text-base font-medium text-ink mb-1">Connect to Base</h3>
             <p className="text-xs text-ink-muted mb-4 font-mono">
               Select your wallet provider to swap on Aerodrome pools.
             </p>
@@ -142,7 +156,7 @@ export function Header() {
                     connect({ connector });
                     setShowWalletModal(false);
                   }}
-                  className="w-full flex items-center justify-between p-3.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline hover:border-hairline-strong transition text-xs font-mono text-white"
+                  className="w-full flex items-center justify-between p-3.5 rounded-full bg-surface-soft hover:bg-surface-elevated border border-hairline hover:border-hairline-strong transition text-xs font-mono text-ink"
                 >
                   <div className="flex items-center space-x-3">
                     <Wallet className="w-4 h-4 text-ink-muted" />

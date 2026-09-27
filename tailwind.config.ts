@@ -10,24 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#000000",
-        "canvas-subtle": "#080808",
+        canvas: "var(--canvas)",
+        "canvas-subtle": "var(--canvas-subtle)",
         surface: {
-          soft: "#121212",
-          card: "#0d0d0d",
-          elevated: "#181818",
-          dark: "#050505",
+          soft: "var(--surface-soft)",
+          card: "var(--surface-card)",
+          elevated: "var(--surface-elevated)",
+          dark: "var(--surface-dark)",
         },
         hairline: {
-          DEFAULT: "#222222",
-          subtle: "#1a1a1a",
-          strong: "#333333",
+          DEFAULT: "var(--hairline)",
+          subtle: "var(--hairline-subtle)",
+          strong: "var(--hairline-strong)",
         },
         ink: {
-          DEFAULT: "#ffffff",
-          deep: "#f5f5f5",
-          muted: "#a3a3a3",
-          faint: "#555555",
+          DEFAULT: "var(--ink)",
+          deep: "var(--ink-deep)",
+          muted: "var(--ink-muted)",
+          faint: "var(--ink-faint)",
         },
         terminal: {
           red: "#ff5f56",

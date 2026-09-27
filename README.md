@@ -20,7 +20,7 @@ Most modern DEX interfaces feel like crowded trading floors: blinking banners, p
 
 **Base Dex** strips all of that away.
 
-It is designed like a native Unix terminal — focused, dark, distraction-free, and lightning fast. When a new pool goes live on Base, you shouldn't have to wait minutes for third-party indexers or graph nodes to sync. Base Dex connects your wallet directly to Aerodrome's verified router on-chain, reads pair states from the factory in real-time, and routes your swap immediately.
+It is designed like a native Unix terminal: focused, distraction-free, and lightning fast. When a new pool goes live on Base, you shouldn't have to wait minutes for third-party indexers or graph nodes to sync. Base Dex connects your wallet directly to Aerodrome's verified router on-chain, reads pair states from the factory in real-time, and routes your swap immediately.
 
 No aggregator delay. No protocol surcharge. Just pure, direct Ethereum Layer 2 execution.
 
@@ -28,11 +28,12 @@ No aggregator delay. No protocol surcharge. Just pure, direct Ethereum Layer 2 e
 
 ### Key Highlights
 
-- **Direct Aerodrome Routing** — Interacts straight with Aerodrome's `PoolFactory` and `Router` contracts. New pairs and custom pools can be traded the second liquidity is deposited.
-- **Custom Token Engine** — Paste any ERC-20 contract on Base. The terminal reads metadata and verifies pool liquidity on-chain within milliseconds.
-- **Non-Custodial & Permissionless** — Zero intermediary contracts. Swaps settle peer-to-pool directly from your wallet with automated slippage protection.
-- **Live Pricing via DefiLlama** — Real-time USD rates without noisy websocket feeds.
-- **Minimalist Terminal Aesthetics** — Designed with a deep canvas palette, subtle monospace accents, and tactile feedback.
+- **Direct Aerodrome Routing**: Interacts straight with Aerodrome's `PoolFactory` and `Router` contracts. New pairs and custom pools can be traded the second liquidity is deposited.
+- **Custom Token Engine**: Paste any ERC-20 contract on Base. The terminal reads metadata and verifies pool liquidity on-chain within milliseconds.
+- **Non-Custodial & Permissionless**: Zero intermediary contracts. Swaps settle peer-to-pool directly from your wallet with automated slippage protection.
+- **Adaptive Light & Dark Themes**: Toggle between dark terminal mode and crisp light paper mode with persistent state.
+- **Live Pricing via DefiLlama**: Real-time USD rates without noisy websocket feeds.
+- **Minimalist Terminal Aesthetics**: Designed with a deep canvas palette, subtle monospace accents, and tactile feedback.
 
 ---
 
@@ -42,7 +43,7 @@ No aggregator delay. No protocol surcharge. Just pure, direct Ethereum Layer 2 e
 |---|---|
 | **Framework** | Next.js 15 (App Router, React 19) |
 | **Web3 Core** | Wagmi v2, Viem v2, Ox |
-| **Styling** | Tailwind CSS with custom terminal theme |
+| **Styling** | Tailwind CSS with dynamic theme variables |
 | **Icons** | Lucide React |
 | **State & Cache** | TanStack React Query v5 |
 
