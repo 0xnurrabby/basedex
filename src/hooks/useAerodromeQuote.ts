@@ -38,8 +38,8 @@ export interface QuoteResult {
 const fallbackBaseClient = createPublicClient({
   chain: base,
   transport: fallback(
-    BASE_RPC_URLS.map((url) => http(url)),
-    { rank: false }
+    BASE_RPC_URLS.map((url) => http(url, { timeout: 8_000, retryCount: 2 })),
+    { rank: true }
   ),
 });
 
@@ -186,11 +186,26 @@ export function useAerodromeQuote(
 
       try {
         const parsedAmountIn = parseUnits(amountIn, tokenIn!.decimals);
-        const candidates = buildCandidateRoutes(tokenIn!, tokenOut!, addrIn, addrOut);
+        const queryClient = fallbackBaseClient;
 
-        const results = await Promise.allSettled(
-          candidates.map((c) =>
-            client.readContract({
+        // 1. Direct candidates (volatile xy=k, then stable)
+        const directCandidates: { routes: AerodromeRoute[]; path: string[] }[] = [
+          {
+            routes: [{ from: addrIn, to: addrOut, stable: false, factory: AERODROME_FACTORY }],
+            path: [tokenIn!.symbol, tokenOut!.symbol],
+          },
+          {
+            routes: [{ from: addrIn, to: addrOut, stable: true, factory: AERODROME_FACTORY }],
+            path: [tokenIn!.symbol, tokenOut!.symbol],
+          },
+        ];
+
+        let bestAmountOut = 0n;
+        let bestCandidate: { routes: AerodromeRoute[]; path: string[] } | null = null;
+
+        const directResults = await Promise.allSettled(
+          directCandidates.map((c) =>
+            queryClient.readContract({
               address: AERODROME_ROUTER,
               abi: AERODROME_ROUTER_ABI,
               functionName: "getAmountsOut",
@@ -201,18 +216,46 @@ export function useAerodromeQuote(
 
         if (cancelled) return;
 
-        let bestAmountOut = 0n;
-        let bestCandidate: { routes: AerodromeRoute[]; path: string[] } | null = null;
-
-        results.forEach((res, i) => {
+        directResults.forEach((res, i) => {
           if (res.status === "fulfilled" && res.value && res.value.length > 0) {
             const outAmount = res.value[res.value.length - 1];
             if (outAmount > bestAmountOut) {
               bestAmountOut = outAmount;
-              bestCandidate = candidates[i];
+              bestCandidate = directCandidates[i];
             }
           }
         });
+
+        // 2. If direct route didn't return a quote, try multi-hop candidates (via WETH, USDC)
+        if (bestAmountOut === 0n) {
+          const allCandidates = buildCandidateRoutes(tokenIn!, tokenOut!, addrIn, addrOut);
+          const multiHopCandidates = allCandidates.slice(2);
+
+          if (multiHopCandidates.length > 0) {
+            const multiHopResults = await Promise.allSettled(
+              multiHopCandidates.map((c) =>
+                queryClient.readContract({
+                  address: AERODROME_ROUTER,
+                  abi: AERODROME_ROUTER_ABI,
+                  functionName: "getAmountsOut",
+                  args: [parsedAmountIn, c.routes],
+                })
+              )
+            );
+
+            if (cancelled) return;
+
+            multiHopResults.forEach((res, i) => {
+              if (res.status === "fulfilled" && res.value && res.value.length > 0) {
+                const outAmount = res.value[res.value.length - 1];
+                if (outAmount > bestAmountOut) {
+                  bestAmountOut = outAmount;
+                  bestCandidate = multiHopCandidates[i];
+                }
+              }
+            });
+          }
+        }
 
         if (bestAmountOut === 0n || !bestCandidate) {
           setQuote(null);
@@ -259,7 +302,7 @@ export function useAerodromeQuote(
 
     const timer = setTimeout(() => {
       fetchQuote();
-    }, 250);
+    }, 350);
 
     return () => {
       cancelled = true;

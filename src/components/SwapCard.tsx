@@ -528,7 +528,7 @@ export function SwapCard() {
           </div>
         )}
 
-        {(quoteError || approveError || swapError) && (
+        {!isQuoteLoading && (quoteError || approveError || swapError) && (
           <div className="mb-4 p-3 rounded-xl bg-surface-soft border border-terminal-red/40 text-terminal-red text-xs font-mono flex items-start space-x-2">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="flex-1 truncate">
