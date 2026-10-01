@@ -92,5 +92,8 @@ export function formatUsdValue(
   if (val >= 0.000001) {
     return "$" + val.toFixed(6);
   }
-  return "<$0.000001";
+  if (val >= 0.00000001) {
+    return "$" + val.toFixed(8);
+  }
+  return "$" + val.toFixed(10).replace(/\.?0+$/, "");
 }
